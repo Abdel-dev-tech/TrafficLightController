@@ -1,0 +1,15 @@
+../Core/Src/main.c:90:5:main	144	static
+../Core/Src/main.c:191:6:SystemClock_Config	88	static
+../Core/Src/main.c:236:6:PeriphCommonClock_Config	32	static
+../Core/Src/main.c:257:13:MX_I2C1_Init	8	static
+../Core/Src/main.c:291:13:MX_I2S2_Init	8	static
+../Core/Src/main.c:325:13:MX_I2S3_Init	8	static
+../Core/Src/main.c:359:13:MX_SPI1_Init	8	static
+../Core/Src/main.c:397:13:MX_USB_OTG_FS_HCD_Init	8	static
+../Core/Src/main.c:428:13:MX_GPIO_Init	56	static
+../Core/Src/main.c:504:6:prvTrafficLightController	16	static
+../Core/Src/main.c:570:6:prvTimeMgntTask	16	static
+../Core/Src/main.c:588:6:prvLightSet1	16	static
+../Core/Src/main.c:606:6:prvLightSet2	16	static
+../Core/Src/main.c:624:6:InitTrafficLeds	56	static
+../Core/Src/main.c:643:6:Error_Handler	4	static,ignoring_inline_asm
