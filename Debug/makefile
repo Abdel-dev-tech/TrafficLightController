@@ -64,8 +64,8 @@ all: main-build
 main-build: TrafficLightController.elf secondary-outputs
 
 # Tool invocations
-TrafficLightController.elf TrafficLightController.map: $(OBJS) $(USER_OBJS) C:\Users\LENOVO\STM32CubeIDE\workspace_1.9.0\TrafficLightController\STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "TrafficLightController.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\LENOVO\STM32CubeIDE\workspace_1.9.0\TrafficLightController\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="TrafficLightController.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+TrafficLightController.elf TrafficLightController.map: $(OBJS) $(USER_OBJS) C:\Users\LENOVO\Music\Freelance\Traffic\ light\ controller\Project\ 1\TrafficLightController\STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "TrafficLightController.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\LENOVO\Music\Freelance\Traffic light controller\Project 1\TrafficLightController\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="TrafficLightController.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

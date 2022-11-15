@@ -149,21 +149,32 @@ int main(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
+
+
+  /*FIRST APPROACH*/
+
+
   /* definition and creation of FirstApproachTL */
-  osThreadDef(FirstApproachTL, prvTrafficLightController, osPriorityNormal, 0, 128);
-  FirstApproachTLHandle = osThreadCreate(osThread(FirstApproachTL), NULL);
+//  osThreadDef(FirstApproachTL, prvTrafficLightController, osPriorityNormal, 0, 128);
+//  FirstApproachTLHandle = osThreadCreate(osThread(FirstApproachTL), NULL);
+
+
+  /*SECOND APPROACH*/
+
 
   /* definition and creation of TimeManagementT */
-  osThreadDef(TimeManagementT, prvTimeMgntTask, osPriorityIdle, 0, 128);
+  osThreadDef(TimeManagementT, prvTimeMgntTask, osPriorityRealtime, 0, 128);
   TimeManagementTHandle = osThreadCreate(osThread(TimeManagementT), NULL);
 
   /* definition and creation of LightSet1 */
-  osThreadDef(LightSet1, prvLightSet1, osPriorityIdle, 0, 128);
+  osThreadDef(LightSet1, prvLightSet1, osPriorityNormal, 0, 128);
   LightSet1Handle = osThreadCreate(osThread(LightSet1), NULL);
 
   /* definition and creation of LightSet2 */
-  osThreadDef(LightSet2, prvLightSet2, osPriorityIdle, 0, 128);
+  osThreadDef(LightSet2, prvLightSet2, osPriorityNormal, 0, 128);
   LightSet2Handle = osThreadCreate(osThread(LightSet2), NULL);
+
+
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -513,7 +524,7 @@ void prvTrafficLightController(void const * argument)
   for(;;)
   {
 		/*turn on RED light of the first Set*/
-	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_5,GPIO_PIN_RESET);
+	    HAL_GPIO_WritePin(GPIOD,GPIO_PIN_5,GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_SET);
 		osDelay(1000);
 
@@ -570,10 +581,42 @@ void prvTrafficLightController(void const * argument)
 void prvTimeMgntTask(void const * argument)
 {
   /* USER CODE BEGIN prvTimeMgntTask */
+
+	  InitTrafficLeds();
+	/*Turn off all the LEDs*/
+	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15,GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_9,GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_5,GPIO_PIN_SET);
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+	/*Notify the red light of both sets of 1s*/
+	  xSemaphoreGive(SemaLightSet1Handle);
+	  xSemaphoreGive(SemaLightSet2Handle);
+      osDelay(1000);
+
+  	/*Notify the green light of the set 1 for 4s*/
+  	 xSemaphoreGive(SemaLightSet1Handle);
+  	 osDelay(4000);
+  	/*Notify the Yellow light of the set 1 for 1.5s*/
+  	 xSemaphoreGive(SemaLightSet1Handle);
+     osDelay(1500);
+
+   	/*Notify the red light of the set 1 for 1s*/
+   	 xSemaphoreGive(SemaLightSet1Handle);
+     osDelay(1000);
+
+	/*Notify the green light of the set 2 for 4s*/
+	 xSemaphoreGive(SemaLightSet2Handle);
+     osDelay(4000);
+
+ 	/*Notify the yellow light of the set 2 for 1.5s*/
+ 	 xSemaphoreGive(SemaLightSet2Handle);
+     osDelay(1500);
+
+  	/*Notify red light of the set 2 for 1.5s*/
+  	 xSemaphoreGive(SemaLightSet2Handle);
+  	 osDelay(1000);
   }
   /* USER CODE END prvTimeMgntTask */
 }
@@ -591,7 +634,28 @@ void prvLightSet1(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+	xSemaphoreTake(SemaLightSet1Handle, portMAX_DELAY);
+	/*Turn on the red light of the set1 for 1s before turning green light*/
+	HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_SET);
+
+	xSemaphoreTake(SemaLightSet1Handle, portMAX_DELAY);
+	/*Turn of Red light*/
+	HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
+	/*Turn on green light*/
+    HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_SET);
+
+    xSemaphoreTake(SemaLightSet1Handle, portMAX_DELAY);
+    /*Turn off green light*/
+    HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
+    /*Turn on yellow light*/
+    HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_SET);
+
+    xSemaphoreTake(SemaLightSet1Handle, portMAX_DELAY);
+    /*Turn off yellow light*/
+    HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
+    /*Turn ON red light*/
+    HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_SET);
+
   }
   /* USER CODE END prvLightSet1 */
 }
@@ -609,7 +673,28 @@ void prvLightSet2(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+	xSemaphoreTake(SemaLightSet2Handle, portMAX_DELAY);
+	/*Turn on the red light of the set2*/
+    HAL_GPIO_WritePin(GPIOD,GPIO_PIN_5,GPIO_PIN_RESET);
+
+    xSemaphoreTake(SemaLightSet2Handle, portMAX_DELAY);
+    /*Turn off red light*/
+    HAL_GPIO_WritePin(GPIOD,GPIO_PIN_5,GPIO_PIN_SET);
+    /*Turn on green light*/
+    HAL_GPIO_WritePin(GPIOA,GPIO_PIN_9,GPIO_PIN_SET);
+
+    xSemaphoreTake(SemaLightSet2Handle, portMAX_DELAY);
+    /*Turn on green light*/
+    HAL_GPIO_WritePin(GPIOA,GPIO_PIN_9,GPIO_PIN_RESET);
+    /*Turn on yellow light*/
+    HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_SET);
+
+    xSemaphoreTake(SemaLightSet2Handle, portMAX_DELAY);
+    /*Turn off yellow light*/
+    HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
+    /*Turn on red light*/
+    HAL_GPIO_WritePin(GPIOD,GPIO_PIN_5,GPIO_PIN_RESET);
+
   }
   /* USER CODE END prvLightSet2 */
 }
@@ -630,7 +715,7 @@ void InitTrafficLeds(void)
 	BoardLEDs.Mode = GPIO_MODE_OUTPUT_PP;
 	USB_RED_LED.Mode = GPIO_MODE_OUTPUT_PP;
 
-	BoardLEDs.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
+	BoardLEDs.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15|GPIO_PIN_5;
 	USB_RED_LED.Pin = GPIO_PIN_9;
 	HAL_GPIO_Init(GPIOD, &BoardLEDs);
 	HAL_GPIO_Init(GPIOA, &USB_RED_LED);
